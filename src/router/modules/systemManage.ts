@@ -10,6 +10,11 @@ const route: Route[] = [
     alwayShow: true,
     children: [
       {
+        path: 'user',
+        component: createNameComponent(() => import('@/views/main/systemManage/users/index.vue')),
+        meta: { title: 'message.menu.systemManage.user' }
+      },
+      {
         path: 'menu',
         component: createNameComponent(() => import('@/views/main/systemManage/menu/index.vue')),
         meta: { title: 'message.menu.systemManage.menu' }
@@ -18,11 +23,6 @@ const route: Route[] = [
         path: 'role',
         component: createNameComponent(() => import('@/views/main/systemManage/role/index.vue')),
         meta: { title: 'message.menu.systemManage.role' }
-      },
-      {
-        path: 'user',
-        component: createNameComponent(() => import('@/views/main/systemManage/users/index.vue')),
-        meta: { title: 'message.menu.systemManage.user' }
       }
     ]
   }

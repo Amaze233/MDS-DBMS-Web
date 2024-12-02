@@ -13,8 +13,7 @@
           :icon="Download"
           class="export-excel-btn"
           @click="handleExportExcel"
-          >{{ $t('message.common.exportExcel') }}</el-button
-        >
+          >{{ $t('message.common.exportExcel') }}</el-button>
       </div>
       <div class="layout-container-form-search">
         <el-input

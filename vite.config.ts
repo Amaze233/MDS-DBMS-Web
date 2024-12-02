@@ -4,7 +4,7 @@
  * @LastEditors: Please set LastEditors
  * @LastEditTime: 2023-02-21 22:57:42
  * @FilePath: \vue-admin-box\vite.config.ts
- * @Description: 
+ * @Description:
  */
 import { ConfigEnv, UserConfigExport } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -20,7 +20,7 @@ const alias: Record<string, string> = {
   '@': pathResolve("src")
 }
 
-/** 
+/**
  * @description-en vite document address
  * @description-cn vite官网
  * https://vitejs.cn/config/ */
@@ -35,8 +35,13 @@ export default ({ command }: ConfigEnv): UserConfigExport => {
       port: 3001,
       host: '0.0.0.0',
       open: true,
+      cors: true,
       proxy: { // 代理配置
-        '/dev': 'https://www.fastmock.site/mock/48cab8545e64d93ff9ba66a87ad04f6b/'
+        '/api': {              //设置拦截器  拦截器格式   斜杠+拦截器名字，名字可以自己定
+          target: 'http://127.0.0.1:5678',     //代理的目标地址
+          changeOrigin: true,              //是否设置同源，输入是的
+          rewrite: (path: string) => path.replace(/^\/api/, '') //替换成target对应的地址
+        }
       },
     },
     build: {

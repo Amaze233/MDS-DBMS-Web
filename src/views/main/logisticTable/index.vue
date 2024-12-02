@@ -8,8 +8,14 @@
             <el-button type="danger" :icon="Delete" :disabled="chooseData.length === 0">{{ $t('message.common.delBat') }}</el-button>
           </template>
         </el-popconfirm>
+        <el-button
+            type="primary"
+            :icon="Download"
+            class="export-excel-btn"
+            @click="handleExportExcel"
+        >{{ $t('message.common.exportExcel') }}</el-button>
       </div>
-      <div class="layout-container-form-search">
+      <div class="layout-container-form-search" >
         <el-input v-model="query.input" :placeholder="$t('message.common.searchTip')" @change="getTableDataByKey(true)"></el-input>
         <el-button type="primary" :icon="Search" class="search-btn" @click="getTableDataByKey(true)">{{ $t('message.common.search') }}</el-button>
       </div>
@@ -25,6 +31,7 @@
         @getTableData="getTableData(false)"
         @selection-change="handleSelectionChange"
       >
+        <el-table-column prop="订单号" label="订单号" align="center" />
         <el-table-column prop="运单号" label="运单号" align="center" />
         <el-table-column prop="内部名" label="商品名" align="center" />
         <el-table-column prop="订单渠道" label="订单渠道" align="center" />
@@ -36,10 +43,12 @@
             <el-tag type="success" v-show="scope.row['状态'] == '已经约好'">签收</el-tag>
             <el-tag type="info" v-show="scope.row['状态'] == '客户没有时间'">延期</el-tag>
             <el-tag type="info" v-show="scope.row['状态'] == '地址错误'">延期</el-tag>
+            <el-tag type="info" v-show="scope.row['状态'] == '延期'">延期</el-tag>
             <el-tag type="info" v-show="scope.row['状态'] == '延迟派送'">延期</el-tag>
             <el-tag type="warning" v-show="scope.row['状态'] == '联系不上'">失联</el-tag>
+            <el-tag type="warning" v-show="scope.row['状态'] == '失联'">失联</el-tag>
             <el-tag type="warning" v-show="scope.row['状态'] == '电话错误'">失联</el-tag>
-            <el-tag type="danger" v-show="scope.row['状态'] == '拒签'">拒收</el-tag>
+            <el-tag type="danger" v-show="scope.row['状态'] == '拒签'">拒签</el-tag>
           </template>
         </el-table-column>
         <el-table-column :label="$t('message.common.handle')" align="center" fixed="right" width="200">
@@ -59,15 +68,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive } from 'vue'
+import { defineComponent, ref, reactive, unref  } from 'vue'
 import Table from '@/components/table/index.vue'
 import { Page } from '@/components/table/type'
-import {getData, del, getData_Logistics, getData_Logistics_Key} from '@/api/table'
+import {getData, del, getData_Logistics, getData_Logistics_Key, del_Logistics_Key} from '@/api/table'
 import Layer from './layer.vue'
 import { ElMessage } from 'element-plus'
+import { aoaToSheetXlsx } from './ExportExcel'
 import type { LayerInterface } from '@/components/layer/index.vue'
 import { selectData, radioData } from './enum'
-import { Plus, Search, Delete } from '@element-plus/icons'
+import { Plus, Search, Delete, Download } from '@element-plus/icons'
+import {useI18n} from "vue-i18n";
 export default defineComponent({
   name: 'crudTable',
   components: {
@@ -79,6 +90,8 @@ export default defineComponent({
     const query = reactive({
       input: ''
     })
+    // 存储搜索用的数据
+    const { t } = useI18n()
     // 弹窗控制器
     const layer: LayerInterface = reactive({
       show: false,
@@ -173,10 +186,11 @@ export default defineComponent({
     const handleDel = (data: object[]) => {
       let params = {
         ids: data.map((e:any)=> {
-          return e.id
-        }).join(',')
+          return e["订单号"]
+        })
       }
-      del(params)
+      console.log("ids:", params.ids)
+      del_Logistics_Key(params)
       .then(res => {
         ElMessage({
           type: 'success',
@@ -197,12 +211,35 @@ export default defineComponent({
       layer.row = row
       layer.show = true
     }
+    // 导出Excel表格
+    const handleExportExcel = () => {
+      if (!unref("download").trim()) {
+        ElMessage({
+          showClose: true,
+          message: t('message.common.exportExcelTip'),
+          type: 'warning',
+        })
+        return
+      }
+      let table = unref(tableData)
+      let header = ["订单号", "运单号", "物流", "邮寄方式", "目的国家", "城市", "类目", "内部名", "SKU", "属性", "总价（NTS）", "下单时间", "发货时间", "抵达目的国时间", "签收时间", "派送次数", "状态", "订单渠道", "更新时间"]
+      let data = table.map((item) => {
+        let { 订单号, 运单号, 物流, 邮寄方式, 目的国家, 城市, 类目, 内部名, SKU, 属性, 总价NTS, 下单时间, 发货时间, 抵达目的国时间, 签收时间, 派送次数, 状态, 订单渠道, 更新时间  } = item;
+        return [订单号, 运单号, 物流, 邮寄方式, 目的国家, 城市, 类目, 内部名, SKU, 属性, 总价NTS, 下单时间, 发货时间, 抵达目的国时间, 签收时间, 派送次数, 状态, 订单渠道, 更新时间 ]
+      })
+      aoaToSheetXlsx({
+        data,
+        header,
+        filename: `${unref("download")}.xlsx`,
+      })
+    }
 
     getTableData(true)
     return {
       Plus,
       Search,
       Delete,
+      Download,
       query,
       tableData,
       chooseData,
@@ -214,7 +251,8 @@ export default defineComponent({
       handleEdit,
       handleDel,
       getTableData,
-      getTableDataByKey
+      getTableDataByKey,
+      handleExportExcel
     }
   }
 })

@@ -7,13 +7,23 @@ const users = [
         }
     },
     {
-        name: 'editor', password: '123456', token: 'editor', info: {
-            name: '编辑人员'
+        name: 'user', password: '123456', token: 'user', info: {
+            name: '普通用户'
         }
     },
     {
-        name: 'test', password: '123456', token: 'test', info: {
-            name: '测试人员'
+        name: 'merchant', password: '123456', token: 'merchant', info: {
+            name: '商家'
+        }
+    },
+    {
+        name: 'courier', password: '123456', token: 'courier', info: {
+            name: '快递员'
+        }
+    },
+    {
+        name: 'company', password: '123456', token: 'company', info: {
+            name: '快递公司'
         }
     },
 ]

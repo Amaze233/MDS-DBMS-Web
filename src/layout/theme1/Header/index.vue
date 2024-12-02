@@ -20,7 +20,7 @@
       <div class="user-info">
         <el-dropdown>
           <span class="el-dropdown-link">
-            {{ $t('message.system.user') }}
+            {{ userLabel }}
             <i class="sfont system-xiala"></i>
           </span>
           <template #dropdown>
@@ -47,7 +47,11 @@ import Github from '../../components/functionList/github.vue'
 import Theme from '../../components/functionList/theme.vue'
 import Breadcrumb from './Breadcrumb.vue'
 import PasswordLayer from '../../components/passwordLayer.vue'
+import {userData} from "@/layout/theme1/Header/enum";
 export default defineComponent({
+  methods: {
+
+  },
   components: {
     FullScreen,
     Breadcrumb,
@@ -55,15 +59,24 @@ export default defineComponent({
     SizeChange,
     Github,
     Theme,
-    PasswordLayer
+    PasswordLayer,
+    userData
   },
   setup() {
     const store = useStore()
     const router = useRouter()
     const route = useRoute()
+    const userName = localStorage.getItem('name')
     const layer = reactive({
       show: false,
       showButton: true
+    })
+    // 获取user对应的标签
+    const userLabel = computed(() => {
+      const userName = localStorage.getItem('user')
+      const userLabel = userData[userName];
+      console.log(userLabel)
+      return userLabel
     })
     const isCollapse = computed(() => store.state.app.isCollapse)
     // isCollapse change to hide/show the sidebar
@@ -84,7 +97,9 @@ export default defineComponent({
       layer,
       opendStateChange,
       loginOut,
-      showPasswordLayer
+      showPasswordLayer,
+      userName,
+      userLabel
     }
   }
 })

@@ -108,6 +108,7 @@ export default defineComponent({
           name: form.name,
           password: form.password
         }
+        localStorage.setItem('user',form.name)
         store.dispatch('user/login', params)
         .then(async () => {
           ElMessage.success({
@@ -116,6 +117,7 @@ export default defineComponent({
             showClose: true,
             duration: 1000
           })
+
           location.reload()
           // await getAuthRoutes()
           // await router.push(route.query.redirect as RouteLocationRaw || '/')
